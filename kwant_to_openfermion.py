@@ -1,9 +1,5 @@
 import openfermion
 
-def grid_ix_to_lattice(ix, grid, lat, spinless):
-    grid_ix = grid.grid_indices(ix, spinless = spinless)
-    lat_ix = lat(grid_ix[0], grid_ix[1])
-    return lat_ix
 
 def builder_to_FermionOperator(syst, hoppings_iterator):
     ham = openfermion.FermionOperator()
