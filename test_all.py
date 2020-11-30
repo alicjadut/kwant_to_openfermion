@@ -1,5 +1,6 @@
 import tinyarray
 import warnings
+import numpy
 warnings.filterwarnings("ignore", category=RuntimeWarning)#Ignore the "MUMPS unavailable" warning
 from kwant_to_openfermion import *
     
@@ -30,7 +31,7 @@ def test_chain():
         ham+= openfermion.hermitian_conjugated(term)
         
     #Test if equal
-    assert system_to_FermionOperator(syst) == ham
+    assert system_to_FermionOperator(syst, 1) == ham
     
 def test_spin_hubbard():
     
@@ -52,7 +53,7 @@ def test_spin_hubbard():
     ham = openfermion.hamiltonians.fermi_hubbard(L, L, t, 0, spinless = False)
         
     #Test if equal
-    assert spin_system_to_FermionOperator(syst) == ham
+    assert system_to_FermionOperator(syst, 2) == ham
     
     
     
