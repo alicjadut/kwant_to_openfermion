@@ -40,6 +40,13 @@ def system_to_FermionOperator(sys):
         
     return(ham)
 
+def _index(lattice_index, spin_index, n_spin):
+    '''
+    Create an integer index based on lattice and spin indices, following the openfermion convension.
+    '''
+    return(lattice_index*n_spin + spin_index)
+
+
 def spin_system_to_FermionicOperator(sys):
     
     n_spin = 2
@@ -51,7 +58,9 @@ def spin_system_to_FermionicOperator(sys):
         val = sys.hamiltonian(lat_ix, lat_ix)
         for spin_ix1 in range(n_spin):
             for spin_ix2 in range(n_spin):
-                ham = ham + openfermion.FermionOperator(f'{n_spin*lat_ix+spin_ix1}^ {n_spin*lat_ix+spin_ix2}', val[spin_ix1, spin_ix2])
+                ix1 = _index(lat_ix, spin_ix1, n_spin)
+                ix2 = _index(lat_ix, spin_ix2, n_spin)
+                ham = ham + openfermion.FermionOperator(f'{ix1}^ {ix2}', val[spin_ix1, spin_ix2])
 
     #hopping terms
     for edge in range(sys.graph.num_edges):
@@ -60,7 +69,7 @@ def spin_system_to_FermionicOperator(sys):
         val = sys.hamiltonian(lat_ix1, lat_ix2)
         for spin_ix1 in range(n_spin):
             for spin_ix2 in range(n_spin):
-                ham = ham + openfermion.FermionOperator(f'{n_spin*lat_ix1+spin_ix1}^ {n_spin*lat_ix2+spin_ix2}', val[spin_ix1, spin_ix2])
-
-        
+                ix1 = _index(lat_ix1, spin_ix1, n_spin)
+                ix2 = _index(lat_ix1, spin_ix2, n_spin)
+                ham = ham + openfermion.FermionOperator(f'{ix1}^ {ix2}', val[spin_ix1, spin_ix2])
     return(ham)
