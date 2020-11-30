@@ -56,7 +56,6 @@ def _single_term_to_FermionOperator(val, lat_ix1, lat_ix2, n_spin):
 def system_to_FermionOperator(sys):
     '''
     Export the hamiltonian of a kwant system to openfermion.
-    Currently doesn't support spin systems.
     
     Parameters
     ----------
