@@ -28,6 +28,30 @@ def _check_dimension(value, n):
     #Else: wrong type
     raise TypeError(f'Expected a number or a numeric array, got {type(value)}')
 
+    
+    
+def _single_term_to_FermionOperator(val, lat_ix1, lat_ix2, n_spin):
+    '''
+    Export single term of the hamiltonian to openfermion.
+    
+    Parameters
+    ----------
+    val: number or array
+    
+    Returns
+    ----------
+    op: openfermion.FermionOperator
+    '''
+    if isinstance(val, (int, float, complex)):
+        op =  openfermion.FermionOperator(f'{lat_ix1}^ {lat_ix2}', val)
+    else:
+        op = openfermion.FermionOperator()
+        for spin_ix1 in range(n_spin):
+            for spin_ix2 in range(n_spin):
+                ix1 = _index(lat_ix1, spin_ix1, n_spin)
+                ix2 = _index(lat_ix2, spin_ix2, n_spin)
+                op+= openfermion.FermionOperator(f'{ix1}^ {ix2}', val[spin_ix1, spin_ix2])
+    return op
 
 def system_to_FermionOperator(sys):
     '''
@@ -54,6 +78,8 @@ def system_to_FermionOperator(sys):
     else:
         raise TypeError(f'Expected a number or a numeric array, got {type(sample_val)}')
     
+    
+    
     ham = openfermion.FermionOperator()
 
     #on site terms
@@ -62,14 +88,7 @@ def system_to_FermionOperator(sys):
         val = sys.hamiltonian(lat_ix, lat_ix)
         _check_dimension(val, n_spin)
         
-        if isinstance(val, (int, float, complex)):
-            ham = ham + openfermion.FermionOperator(f'{lat_ix}^ {lat_ix}', val)
-        else:
-            for spin_ix1 in range(n_spin):
-                for spin_ix2 in range(n_spin):
-                    ix1 = _index(lat_ix, spin_ix1, n_spin)
-                    ix2 = _index(lat_ix, spin_ix2, n_spin)
-                    ham = ham + openfermion.FermionOperator(f'{ix1}^ {ix2}', val[spin_ix1, spin_ix2])
+        ham+=_single_term_to_FermionOperator(val, lat_ix, lat_ix, n_spin)
 
     #hopping terms
     for edge in range(sys.graph.num_edges):
@@ -80,12 +99,6 @@ def system_to_FermionOperator(sys):
         val = sys.hamiltonian(lat_ix1, lat_ix2)
         _check_dimension(val, n_spin)
         
-        if isinstance(val, (int, float, complex)):
-            ham = ham + openfermion.FermionOperator(f'{lat_ix1}^ {lat_ix2}', val)
-        else:
-            for spin_ix1 in range(n_spin):
-                for spin_ix2 in range(n_spin):
-                    ix1 = _index(lat_ix1, spin_ix1, n_spin)
-                    ix2 = _index(lat_ix2, spin_ix2, n_spin)
-                    ham = ham + openfermion.FermionOperator(f'{ix1}^ {ix2}', val[spin_ix1, spin_ix2])
+        ham+=_single_term_to_FermionOperator(val, lat_ix1, lat_ix2, n_spin)
+          
     return(ham)
