@@ -29,7 +29,7 @@ def _check_dimension(value, n):
     raise TypeError(f'Expected a number or a numeric array, got {type(value)}')
 
 
-def system_to_FermionOperator(sys, n_spin):
+def system_to_FermionOperator(sys):
     '''
     Export the hamiltonian of a kwant system to openfermion.
     Currently doesn't support spin systems.
@@ -37,14 +37,22 @@ def system_to_FermionOperator(sys, n_spin):
     Parameters
     ----------
     sys: kwant.system.FiniteSystem or kwant.system.InfiniteSystem
-    n_spin: int
-        number of spin states
     
     Returns
     ----------
     ham: openfermion.FermionOperator
         The hamiltonian of sys as an openfermion object.
     '''
+    
+    
+    #Get the number of spin states out of the first on-site value
+    sample_val = sys.onsites[0][0]
+    if isinstance(sample_val, (int, float, complex)):
+        n_spin = 1
+    elif isinstance(sample_val, (numpy.ndarray, tinyarray.ndarray_complex, tinyarray.ndarray_float, tinyarray.ndarray_int)):
+        n_spin = sample_val.shape[0]
+    else:
+        raise TypeError(f'Expected a number or a numeric array, got {type(sample_val)}')
     
     ham = openfermion.FermionOperator()
 

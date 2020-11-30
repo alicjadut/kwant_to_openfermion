@@ -31,7 +31,7 @@ def test_chain():
         ham+= openfermion.hermitian_conjugated(term)
         
     #Test if equal
-    assert system_to_FermionOperator(syst, 1) == ham
+    assert system_to_FermionOperator(syst) == ham
     
 def test_spin_hubbard():
     
@@ -53,7 +53,7 @@ def test_spin_hubbard():
     ham = openfermion.hamiltonians.fermi_hubbard(L, L, t, 0, spinless = False)
         
     #Test if equal
-    assert system_to_FermionOperator(syst, 2) == ham
+    assert system_to_FermionOperator(syst) == ham
     
     
     
