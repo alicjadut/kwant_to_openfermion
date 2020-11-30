@@ -47,7 +47,7 @@ def _index(lattice_index, spin_index, n_spin):
     return(lattice_index*n_spin + spin_index)
 
 
-def spin_system_to_FermionicOperator(sys):
+def spin_system_to_FermionOperator(sys):
     
     n_spin = 2
     
@@ -70,6 +70,6 @@ def spin_system_to_FermionicOperator(sys):
         for spin_ix1 in range(n_spin):
             for spin_ix2 in range(n_spin):
                 ix1 = _index(lat_ix1, spin_ix1, n_spin)
-                ix2 = _index(lat_ix1, spin_ix2, n_spin)
+                ix2 = _index(lat_ix2, spin_ix2, n_spin)
                 ham = ham + openfermion.FermionOperator(f'{ix1}^ {ix2}', val[spin_ix1, spin_ix2])
     return(ham)
