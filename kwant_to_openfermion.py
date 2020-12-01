@@ -68,6 +68,8 @@ def system_to_FermionOperator(sys):
         The hamiltonian of sys as an openfermion object.
     '''
     
+    if not isinstance(sys, kwant.system.System):
+        raise TypeError(f'Expecting an instance of System, got {type(sys)}')
     
     #Get the number of spin states out of the first on-site value
     sample_val = sys.onsites[0][0]
