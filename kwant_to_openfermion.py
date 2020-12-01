@@ -42,6 +42,7 @@ def _single_term_to_FermionOperator(val, lat_ix1, lat_ix2, n_spin):
     ----------
     op: openfermion.FermionOperator
     '''
+    _check_dimension(val, n_spin)
     if isinstance(val, (int, float, complex)):
         op =  openfermion.FermionOperator(f'{lat_ix1}^ {lat_ix2}', val)
     else:
@@ -85,7 +86,6 @@ def system_to_FermionOperator(sys):
     for lat_ix in sys.id_by_site.values():
         
         val = sys.hamiltonian(lat_ix, lat_ix)
-        _check_dimension(val, n_spin)
         
         ham+=_single_term_to_FermionOperator(val, lat_ix, lat_ix, n_spin)
 
@@ -96,7 +96,6 @@ def system_to_FermionOperator(sys):
         lat_ix2 = sys.graph.tail(edge)
         
         val = sys.hamiltonian(lat_ix1, lat_ix2)
-        _check_dimension(val, n_spin)
         
         ham+=_single_term_to_FermionOperator(val, lat_ix1, lat_ix2, n_spin)
           
