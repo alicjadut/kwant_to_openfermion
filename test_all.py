@@ -1,11 +1,10 @@
 import tinyarray
 import warnings
-import numpy
 warnings.filterwarnings("ignore", category=RuntimeWarning)#Ignore the "MUMPS unavailable" warning
 from kwant_to_openfermion import *
-    
+
 def test_chain():
-    
+
     a = 1
     L = 3
     t = 1
@@ -23,22 +22,22 @@ def test_chain():
     ham = openfermion.FermionOperator()
     ##On-site terms
     for i in range(L):
-        ham+=openfermion.FermionOperator(f'{i}^ {i}', t)
+        ham += openfermion.FermionOperator(f'{i}^ {i}', t)
     ##Hopping terms
     for i in range(L-1):
         term = openfermion.FermionOperator(f'{i}^ {i+1}', -t)
-        ham+= term
-        ham+= openfermion.hermitian_conjugated(term)
-        
+        ham += term
+        ham += openfermion.hermitian_conjugated(term)
+   
     #Test if equal
     assert system_to_FermionOperator(syst) == ham
-    
+
 def test_spin_hubbard():
-    
+
     a = 1
     L = 2
     t = 1
-    
+
     sigma_0 = tinyarray.array([[1, 0], [0, 1]])
 
     #Build an LxL square lattice in kwant
@@ -50,10 +49,8 @@ def test_spin_hubbard():
     syst = syst.finalized()
 
     #Build a hamiltonian in openfermion
-    ham = openfermion.hamiltonians.fermi_hubbard(L, L, t, 0, spinless = False)
-        
+    ham = openfermion.hamiltonians.fermi_hubbard(L, L, t, 0, spinless=False)
+  
     #Test if equal
     assert system_to_FermionOperator(syst) == ham
-    
-    
-    
+

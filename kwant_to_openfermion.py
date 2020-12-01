@@ -92,3 +92,4 @@ def system_to_FermionOperator(sys):
         ham += _single_term_to_FermionOperator(val, lat_ix1, lat_ix2, n_spin)
 
     return ham
+
