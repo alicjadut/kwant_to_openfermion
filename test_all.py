@@ -9,12 +9,12 @@ import kwant_to_openfermion as ko
 sigma_0 = tinyarray.array([[1, 0], [0, 1]])
     
 def test_single_term_spinless():
-    op1 = ko._single_term_to_FermionOperator(1, 0, 0, 1)
+    op1 = ko._single_term_to_FermionOperator(1, 0, 0, ko.Indexer())
     op2 = openfermion.FermionOperator('0^ 0')
     assert op1 == op2
 
 def test_single_term_spin():
-    op1 = ko._single_term_to_FermionOperator(sigma_0, 0, 0, 2)
+    op1 = ko._single_term_to_FermionOperator(sigma_0, 0, 0, ko.Indexer())
     op2 = openfermion.FermionOperator('0^ 0')+openfermion.FermionOperator('1^ 1')
     assert op1 == op2
     

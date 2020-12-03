@@ -3,14 +3,34 @@ import kwant
 import numpy
 import tinyarray
 
-def _index(lattice_index, spin_index, n_spin):
-    '''
-    Create an integer index based on lattice and spin indices, following the openfermion convension.
-    '''
-    return lattice_index*n_spin + spin_index
+class Indexer:
+    
+    def __init__(self):
+        self._indexed_elements = []
+        self._index_by_element = {}
+        self._current_index = 0
+        
+    def index(self, el):
+        '''
+        Return an integer index for el.
+        '''
+        
+        #If the element was not indexed already, create a new index
+        if not el in self._indexed_elements:
+            self._indexed_elements.append(el)
+            self._index_by_element[el] = self._current_index
+            self._current_index += 1
+        
+        return self._index_by_element[el]
+        
+    def element(self, ix):
+        '''
+        Return the element indexed by ix.
+        '''
+        return self._indexed_elements[ix]
+        
 
-
-def _single_term_to_FermionOperator(val, lat_ix1, lat_ix2, n_spin):
+def _single_term_to_FermionOperator(val, lat_ix1, lat_ix2, ind):
     '''
     Export single term of the hamiltonian to openfermion.
 
@@ -23,15 +43,21 @@ def _single_term_to_FermionOperator(val, lat_ix1, lat_ix2, n_spin):
     op: openfermion.FermionOperator
     '''
     try:
+        #The code is executed until the error, so using just lat_ix as elements to be indexed creates spurious indices
+        ix1 = ind.index((lat_ix1,0))
+        ix2 = ind.index((lat_ix2,0))
         return openfermion.FermionOperator(f'{lat_ix1}^ {lat_ix2}', val)
     except ValueError:
         try:
-            op = openfermion.FermionOperator()
             
+            assert val.shape[0] == val.shape[1], 'Matrix should be square.'
+            n_spin = val.shape[0]
+            
+            op = openfermion.FermionOperator()
             for spin_ix1 in range(n_spin):
                 for spin_ix2 in range(n_spin):
-                    ix1 = _index(lat_ix1, spin_ix1, n_spin)
-                    ix2 = _index(lat_ix2, spin_ix2, n_spin)
+                    ix1 = ind.index((lat_ix1, spin_ix1))
+                    ix2 = ind.index((lat_ix2, spin_ix2))
                     op += openfermion.FermionOperator(f'{ix1}^ {ix2}', val[spin_ix1, spin_ix2])
                     
             return op
@@ -55,28 +81,20 @@ def system_to_FermionOperator(sys):
     if not isinstance(sys, kwant.system.System):
         raise TypeError(f'Expecting an instance of System, got {type(sys)}')
 
-    #Get the number of spin states out of the first on-site value
-    sample_val = sys.onsites[0][0]
-    if isinstance(sample_val, (int, float, complex)):
-        n_spin = 1
-    elif isinstance(sample_val, (numpy.ndarray, tinyarray.ndarray_complex, tinyarray.ndarray_float, tinyarray.ndarray_int)):
-        n_spin = sample_val.shape[0]
-    else:
-        raise TypeError(f'Expected a number or a numeric array, got {type(sample_val)}')
-
     ham = openfermion.FermionOperator()
+    ind = Indexer()
 
     #on site terms
     for lat_ix in sys.id_by_site.values():
         val = sys.hamiltonian(lat_ix, lat_ix)
-        ham += _single_term_to_FermionOperator(val, lat_ix, lat_ix, n_spin)
+        ham += _single_term_to_FermionOperator(val, lat_ix, lat_ix, ind)
 
     #hopping terms
     for edge in range(sys.graph.num_edges):
         lat_ix1 = sys.graph.head(edge)
         lat_ix2 = sys.graph.tail(edge)
         val = sys.hamiltonian(lat_ix1, lat_ix2)
-        ham += _single_term_to_FermionOperator(val, lat_ix1, lat_ix2, n_spin)
+        ham += _single_term_to_FermionOperator(val, lat_ix1, lat_ix2, ind)
 
     return ham
 
