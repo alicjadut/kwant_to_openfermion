@@ -9,23 +9,6 @@ def _index(lattice_index, spin_index, n_spin):
     '''
     return lattice_index*n_spin + spin_index
 
-def _check_dimension(value, n):
-    '''
-    Check if value is a numeric array of size n x n (or a scalar in case of n=1)
-    '''
-    #if value is an array
-    if isinstance(value, (numpy.ndarray, tinyarray.ndarray_complex, tinyarray.ndarray_float, tinyarray.ndarray_int)):
-        if value.shape == (n, n):
-            return
-        raise ValueError(f'Expected an array of shape ({n},{n}), got {value.shape}')
-    #numeric value accepted only for n=1
-    if isinstance(value, (int, float, complex)):
-        if n == 1:
-            return
-        raise ValueError(f'Got a scalar, please convert to  an ({n},{n}) array')
-    #Else: wrong type
-    raise TypeError(f'Expected a number or a numeric array, got {type(value)}')
-
 
 def _single_term_to_FermionOperator(val, lat_ix1, lat_ix2, n_spin):
     '''
@@ -33,23 +16,27 @@ def _single_term_to_FermionOperator(val, lat_ix1, lat_ix2, n_spin):
 
     Parameters
     ----------
-    val: number or array
+    val: number or 2D array
 
     Returns
     ----------
     op: openfermion.FermionOperator
     '''
-    _check_dimension(val, n_spin)
-    if isinstance(val, (int, float, complex)):
-        op = openfermion.FermionOperator(f'{lat_ix1}^ {lat_ix2}', val)
-    else:
-        op = openfermion.FermionOperator()
-        for spin_ix1 in range(n_spin):
-            for spin_ix2 in range(n_spin):
-                ix1 = _index(lat_ix1, spin_ix1, n_spin)
-                ix2 = _index(lat_ix2, spin_ix2, n_spin)
-                op += openfermion.FermionOperator(f'{ix1}^ {ix2}', val[spin_ix1, spin_ix2])
-    return op
+    try:
+        return openfermion.FermionOperator(f'{lat_ix1}^ {lat_ix2}', val)
+    except ValueError:
+        try:
+            op = openfermion.FermionOperator()
+            
+            for spin_ix1 in range(n_spin):
+                for spin_ix2 in range(n_spin):
+                    ix1 = _index(lat_ix1, spin_ix1, n_spin)
+                    ix2 = _index(lat_ix2, spin_ix2, n_spin)
+                    op += openfermion.FermionOperator(f'{ix1}^ {ix2}', val[spin_ix1, spin_ix2])
+                    
+            return op
+        except:
+            raise ValueError(f'Cannot construct fermionic operator with indices {lat_ix1}, {lat_ix2}, value {val}')
 
 def system_to_FermionOperator(sys):
     '''
