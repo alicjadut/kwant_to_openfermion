@@ -46,7 +46,7 @@ def _single_term_to_FermionOperator(val, lat_ix1, lat_ix2, ind):
         #The code is executed until the error, so using just lat_ix as elements to be indexed creates spurious indices
         ix1 = ind.index((lat_ix1,0))
         ix2 = ind.index((lat_ix2,0))
-        return openfermion.FermionOperator(f'{lat_ix1}^ {lat_ix2}', val)
+        return openfermion.FermionOperator(f'{ix1}^ {ix2}', val)
     except ValueError:
         try:
             
