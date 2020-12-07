@@ -43,12 +43,6 @@ def _single_term_to_FermionOperator(val, lat_ix1, lat_ix2, ind):
     op: openfermion.FermionOperator
     '''
     try:
-        #The code is executed until the error, so using just lat_ix as elements to be indexed creates spurious indices
-        ix1 = ind.index((lat_ix1,0))
-        ix2 = ind.index((lat_ix2,0))
-        return openfermion.FermionOperator(f'{ix1}^ {ix2}', val)
-    except ValueError:
-        try:
             
             assert val.shape[0] == val.shape[1], 'Matrix should be square.'
             n_spin = val.shape[0]
@@ -56,11 +50,17 @@ def _single_term_to_FermionOperator(val, lat_ix1, lat_ix2, ind):
             op = openfermion.FermionOperator()
             for spin_ix1 in range(n_spin):
                 for spin_ix2 in range(n_spin):
-                    ix1 = ind.index((lat_ix1, spin_ix1))
-                    ix2 = ind.index((lat_ix2, spin_ix2))
+                    ix1 = ind.index((lat_ix1, spin_ix1, n_spin))
+                    ix2 = ind.index((lat_ix2, spin_ix2, n_spin))
                     op += openfermion.FermionOperator(f'{ix1}^ {ix2}', val[spin_ix1, spin_ix2])
                     
             return op
+
+    except:
+        try:
+            ix1 = ind.index((lat_ix1, 0, 1))
+            ix2 = ind.index((lat_ix2, 0, 1))
+            return openfermion.FermionOperator(f'{ix1}^ {ix2}', val)
         except:
             raise ValueError(f'Cannot construct fermionic operator with indices {lat_ix1}, {lat_ix2}, value {val}')
 
