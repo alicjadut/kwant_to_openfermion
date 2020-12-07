@@ -37,3 +37,42 @@ def to_pauli_basis(m):
             return _to_pauli_basis_4(m)
         except:
             raise ValueError('Cannot get Pauli coefficients.')
+
+
+            
+
+
+def _single_term_to_QubitOperator(val, ix1, ix2):
+    
+    try:
+        dims = val.shape
+    except:
+        raise ValueError(f'Expected a matrix, got {type(val)}.')
+        
+    pauli_coefs = to_pauli_basis(val)
+    
+    op = openfermion.QubitOperator()
+    
+    #On site terms
+    if ix1 == ix2:
+        assert dims == (2,2), f'Onsite terms must be 2x2 matrices, got {dims}'
+        for name, coef in zip(pauli_names, pauli_coefs):
+            if name == '1':
+                op += openfermion.QubitOperator('', coef)
+            else:
+                op += openfermion.QubitOperator(name+str(ix1), coef)
+        return op
+    
+    #Interaction terms
+    assert dims == (4,4), f'Onsite terms must be 4x4 matrices, got {dims}'
+    for name, coef in zip(pauli_names4, pauli_coefs):
+        if name == ('1', '1'):
+            op += openfermion.QubitOperator('', coef)
+        elif name[0] == '1':
+            op += openfermion.QubitOperator(name[1]+str(ix2), coef)
+        elif name[1] == '1':
+            op += openfermion.QubitOperator(name[0]+str(ix1), coef)
+        else:
+            op += openfermion.QubitOperator(name[0]+str(ix1)+' '+name[1]+str(ix2), coef)
+    return op
+
