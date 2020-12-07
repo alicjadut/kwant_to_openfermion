@@ -76,3 +76,25 @@ def _single_term_to_QubitOperator(val, ix1, ix2):
             op += openfermion.QubitOperator(name[0]+str(ix1)+' '+name[1]+str(ix2), coef)
     return op
 
+
+
+def system_to_QubitOperator(sys):
+    
+    if not isinstance(sys, kwant.system.System):
+        raise TypeError(f'Expecting an instance of System, got {type(sys)}')
+
+    ham = openfermion.QubitOperator()
+
+    #on site terms
+    for lat_ix in sys.id_by_site.values():
+        val = sys.hamiltonian(lat_ix, lat_ix)
+        ham += _single_term_to_QubitOperator(val, lat_ix, lat_ix)
+
+    #hopping terms
+    for edge in range(sys.graph.num_edges):
+        lat_ix1 = sys.graph.head(edge)
+        lat_ix2 = sys.graph.tail(edge)
+        val = sys.hamiltonian(lat_ix1, lat_ix2)
+        ham += _single_term_to_QubitOperator(val, lat_ix1, lat_ix2)
+
+    return ham
