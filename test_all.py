@@ -1,4 +1,4 @@
-import tinyarray
+import numpy
 import warnings
 warnings.filterwarnings("ignore", category=RuntimeWarning)#Ignore the "MUMPS unavailable" warning
 import kwant
@@ -6,7 +6,7 @@ import openfermion
 import kwant_to_openfermion as ko
 
 
-sigma_0 = tinyarray.array([[1, 0], [0, 1]])
+sigma_0 = numpy.array([[1., 0], [0, 1]])
     
 def test_single_term_spinless():
     op1 = ko._single_term_to_FermionOperator(1, 0, 0, ko.Indexer())
@@ -69,4 +69,24 @@ def test_spin_hubbard():
   
     #Test if equal
     assert ko.system_to_FermionOperator(syst) == ham
+    
+def test_different_spins():
+    '''
+    Non-interacting fermions with different spins.
+    '''
+    
+    n_sites = 3
+    
+    lat = kwant.lattice.chain()
+    syst = kwant.Builder()
+    for i in range(n_sites):
+        syst[lat(i)] = numpy.diag(numpy.ones(i+1))
+    syst = syst.finalized()
+    
+    ham = openfermion.FermionOperator()
+    for i in range((n_sites*(n_sites+1))//2):
+        ham += openfermion.FermionOperator(f'{i}^ {i}')
+        
+    assert ko.system_to_FermionOperator(syst) == ham
+    
 
