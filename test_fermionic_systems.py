@@ -3,18 +3,18 @@ import warnings
 warnings.filterwarnings("ignore", category=RuntimeWarning)#Ignore the "MUMPS unavailable" warning
 import kwant
 import openfermion
-import kwant_to_openfermion as ko
+import fermionic_systems as fs
 
 
 sigma_0 = numpy.array([[1., 0], [0, 1]])
     
 def test_single_term_spinless():
-    op1 = ko._single_term_to_FermionOperator(1, 0, 0, ko.Indexer())
+    op1 = fs._single_term_to_FermionOperator(1, 0, 0, fs.Indexer())
     op2 = openfermion.FermionOperator('0^ 0')
     assert op1 == op2
 
 def test_single_term_spin():
-    op1 = ko._single_term_to_FermionOperator(sigma_0, 0, 0, ko.Indexer())
+    op1 = fs._single_term_to_FermionOperator(sigma_0, 0, 0, fs.Indexer())
     op2 = openfermion.FermionOperator('0^ 0')+openfermion.FermionOperator('1^ 1')
     assert op1 == op2
     
@@ -45,7 +45,7 @@ def test_chain():
         ham += openfermion.hermitian_conjugated(term)
    
     #Test if equal
-    assert ko.system_to_FermionOperator(syst) == ham
+    assert fs.system_to_FermionOperator(syst) == ham
 
 def test_spin_hubbard():
     '''
@@ -68,7 +68,7 @@ def test_spin_hubbard():
     ham = openfermion.hamiltonians.fermi_hubbard(L, L, t, 0, spinless=False)
   
     #Test if equal
-    assert ko.system_to_FermionOperator(syst) == ham
+    assert fs.system_to_FermionOperator(syst) == ham
     
 def test_different_spins():
     '''
@@ -87,6 +87,6 @@ def test_different_spins():
     for i in range((n_sites*(n_sites+1))//2):
         ham += openfermion.FermionOperator(f'{i}^ {i}')
         
-    assert ko.system_to_FermionOperator(syst) == ham
+    assert fs.system_to_FermionOperator(syst) == ham
     
 
