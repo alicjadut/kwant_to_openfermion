@@ -94,7 +94,7 @@ def system_to_QubitOperator(sys):
     for edge in range(sys.graph.num_edges):
         lat_ix1 = sys.graph.head(edge)
         lat_ix2 = sys.graph.tail(edge)
-        val = sys.hamiltonian(lat_ix1, lat_ix2)
+        val = sys.hamiltonian(lat_ix1, lat_ix2)/2
         ham += _single_term_to_QubitOperator(val, lat_ix1, lat_ix2)
 
     return ham
