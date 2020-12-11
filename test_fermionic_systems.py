@@ -89,4 +89,27 @@ def test_different_spins():
         
     assert fs.system_to_FermionOperator(syst) == ham
     
+def test_different_spins_hopping():
+    '''
+    1 fermionic mode at site 0, 2 fermionic modes at site 1
+    + hopping between sites
+    '''
+    lat = kwant.lattice.chain()
+    syst = kwant.Builder()
+    syst[lat(0)] = 2.
+    syst[lat(1)] = 3. * sigma_0
+    syst[lat(0), lat(1)] = numpy.array([[1., -1.]])
+    syst = syst.finalized()
+    
+    ham = \
+    openfermion.FermionOperator('0^ 0', 2.) + \
+    openfermion.FermionOperator('1^ 1', 3.) + \
+    openfermion.FermionOperator('2^ 2', 3.) + \
+    openfermion.FermionOperator('0^ 1', 1.) + \
+    openfermion.FermionOperator('1^ 0', 1.) + \
+    openfermion.FermionOperator('2^ 0', -1.) + \
+    openfermion.FermionOperator('0^ 2', -1.)
+    
+    assert fs.system_to_FermionOperator(syst) == ham
+    
 
