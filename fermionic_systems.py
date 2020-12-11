@@ -43,20 +43,22 @@ def _single_term_to_FermionOperator(val, lat_ix1, lat_ix2, ind):
     op: openfermion.FermionOperator
     '''
     try:
+            n_spin1 = val.shape[0]
+            n_spin2 = val.shape[1]
             
             op = openfermion.FermionOperator()
-            for spin_ix1 in range(val.shape[0]):
-                for spin_ix2 in range(val.shape[1]):
-                    ix1 = ind.index((lat_ix1, spin_ix1))
-                    ix2 = ind.index((lat_ix2, spin_ix2))
+            for spin_ix1 in range(n_spin1):
+                for spin_ix2 in range(n_spin2):
+                    ix1 = ind.index((lat_ix1, spin_ix1, n_spin1))
+                    ix2 = ind.index((lat_ix2, spin_ix2, n_spin2))
                     op += openfermion.FermionOperator(f'{ix1}^ {ix2}', val[spin_ix1, spin_ix2])
                     
             return op
 
     except:
         try:
-            ix1 = ind.index((lat_ix1, 0))
-            ix2 = ind.index((lat_ix2, 0))
+            ix1 = ind.index((lat_ix1, 0, 1))
+            ix2 = ind.index((lat_ix2, 0, 1))
             return openfermion.FermionOperator(f'{ix1}^ {ix2}', val)
         except:
             raise ValueError(f'Cannot construct fermionic operator with indices {lat_ix1}, {lat_ix2}, value {val}')
