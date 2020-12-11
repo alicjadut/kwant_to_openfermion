@@ -4,10 +4,10 @@ import kwant
 
 
 # Define Pauli matrices
-sigma_0 = np.array([[1, 0], [0, 1]])
-sigma_x = np.array([[0, 1], [1, 0]])
-sigma_y = np.array([[0, -1j], [1j, 0]])
-sigma_z = np.array([[1, 0], [0, -1]])
+sigma_0 = np.array([[1., 0.], [0., 1.]])
+sigma_x = np.array([[0., 1.], [1., 0.]])
+sigma_y = np.array([[0., -1j], [1j, 0.]])
+sigma_z = np.array([[1., 0.], [0., -1.]])
 pauli_matrices = [sigma_0, sigma_x, sigma_y, sigma_z]
 pauli_names = ['1', 'X', 'Y', 'Z']
 
