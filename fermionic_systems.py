@@ -1,34 +1,36 @@
 import openfermion
 import kwant
-import numpy
-import tinyarray
 
 class Indexer:
-    
+    '''
+    An object that matches lattice and spin indices to
+    integer indices to be used by openfermion operators.
+    '''
+
     def __init__(self):
         self._indexed_elements = []
         self._index_by_element = {}
         self._current_index = 0
-        
+
     def index(self, el):
         '''
         Return an integer index for el.
         '''
-        
+
         #If the element was not indexed already, create a new index
         if not el in self._indexed_elements:
             self._indexed_elements.append(el)
             self._index_by_element[el] = self._current_index
             self._current_index += 1
-        
+
         return self._index_by_element[el]
-        
+
     def element(self, ix):
         '''
         Return the element indexed by ix.
         '''
         return self._indexed_elements[ix]
-        
+
 
 def _single_term_to_FermionOperator(val, lat_ix1, lat_ix2, ind):
     '''
@@ -43,17 +45,17 @@ def _single_term_to_FermionOperator(val, lat_ix1, lat_ix2, ind):
     op: openfermion.FermionOperator
     '''
     try:
-            n_spin1 = val.shape[0]
-            n_spin2 = val.shape[1]
-            
-            op = openfermion.FermionOperator()
-            for spin_ix1 in range(n_spin1):
-                for spin_ix2 in range(n_spin2):
-                    ix1 = ind.index((lat_ix1, spin_ix1, n_spin1))
-                    ix2 = ind.index((lat_ix2, spin_ix2, n_spin2))
-                    op += openfermion.FermionOperator(f'{ix1}^ {ix2}', val[spin_ix1, spin_ix2])
-                    
-            return op
+        n_spin1 = val.shape[0]
+        n_spin2 = val.shape[1]
+
+        op = openfermion.FermionOperator()
+        for spin_ix1 in range(n_spin1):
+            for spin_ix2 in range(n_spin2):
+                ix1 = ind.index((lat_ix1, spin_ix1, n_spin1))
+                ix2 = ind.index((lat_ix2, spin_ix2, n_spin2))
+                op += openfermion.FermionOperator(f'{ix1}^ {ix2}', val[spin_ix1, spin_ix2])
+
+        return op
 
     except:
         try:
@@ -61,7 +63,9 @@ def _single_term_to_FermionOperator(val, lat_ix1, lat_ix2, ind):
             ix2 = ind.index((lat_ix2, 0, 1))
             return openfermion.FermionOperator(f'{ix1}^ {ix2}', val)
         except:
-            raise ValueError(f'Cannot construct fermionic operator with indices {lat_ix1}, {lat_ix2}, value {val}')
+            raise ValueError(f'''
+            Cannot construct fermionic operator with
+            indices {lat_ix1}, {lat_ix2}, value {val}''')
 
 def system_to_FermionOperator(sys, return_indexer = False):
     '''
@@ -99,6 +103,6 @@ def system_to_FermionOperator(sys, return_indexer = False):
         val = sys.hamiltonian(lat_ix1, lat_ix2)
         ham += _single_term_to_FermionOperator(val, lat_ix1, lat_ix2, ind)
 
-    if(return_indexer):
+    if return_indexer:
         return ham, ind
     return ham
