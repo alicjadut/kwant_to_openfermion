@@ -100,5 +100,5 @@ def system_to_FermionOperator(sys, return_indexer = False):
         ham += _single_term_to_FermionOperator(val, lat_ix1, lat_ix2, ind)
 
     if(return_indexer):
-        return ham, indexer
+        return ham, ind
     return ham
