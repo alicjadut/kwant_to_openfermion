@@ -102,4 +102,3 @@ def system_to_FermionOperator(sys, return_indexer = False):
     if(return_indexer):
         return ham, indexer
     return ham
-
