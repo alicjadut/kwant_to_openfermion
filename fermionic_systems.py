@@ -63,18 +63,22 @@ def _single_term_to_FermionOperator(val, lat_ix1, lat_ix2, ind):
         except:
             raise ValueError(f'Cannot construct fermionic operator with indices {lat_ix1}, {lat_ix2}, value {val}')
 
-def system_to_FermionOperator(sys):
+def system_to_FermionOperator(sys, return_indexer = False):
     '''
     Export the hamiltonian of a kwant system to openfermion.
 
     Parameters
     ----------
     sys: kwant.system.FiniteSystem or kwant.system.InfiniteSystem
+    return_indexer: bool
 
     Returns
     ----------
     ham: openfermion.FermionOperator
         The hamiltonian of sys as an openfermion object.
+    indexer: kwant_to_openfermion.Indexer
+        An object that matched the interger indices used by the
+        openfermion operator to site and spin indices.
     '''
 
     if not isinstance(sys, kwant.system.System):
@@ -95,5 +99,7 @@ def system_to_FermionOperator(sys):
         val = sys.hamiltonian(lat_ix1, lat_ix2)
         ham += _single_term_to_FermionOperator(val, lat_ix1, lat_ix2, ind)
 
+    if(return_indexer):
+        return ham, indexer
     return ham
 
