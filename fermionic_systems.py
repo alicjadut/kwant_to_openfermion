@@ -8,7 +8,7 @@ class Indexer:
     '''
 
     def __init__(self):
-        self._indexed_elements = []
+        self.elements = []
         self._index_by_element = {}
         self._current_index = 0
 
@@ -18,8 +18,8 @@ class Indexer:
         '''
 
         #If the element was not indexed already, create a new index
-        if not el in self._indexed_elements:
-            self._indexed_elements.append(el)
+        if not el in self.elements:
+            self.elements.append(el)
             self._index_by_element[el] = self._current_index
             self._current_index += 1
 
@@ -29,7 +29,7 @@ class Indexer:
         '''
         Return the element indexed by ix.
         '''
-        return self._indexed_elements[ix]
+        return self.elements[ix]
 
 
 def _single_term_to_FermionOperator(val, lat_ix1, lat_ix2, ind):
