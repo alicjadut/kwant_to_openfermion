@@ -1,5 +1,6 @@
 import openfermion
 import kwant
+from itertools import combinations
 
 class Indexer:
     '''
@@ -82,8 +83,12 @@ def system_to_FermionOperator(sys, return_indexer = False):
         The hamiltonian of sys as an openfermion object.
     indexer: kwant_to_openfermion.Indexer
         An object that matched the interger indices used by the
-        openfermion operator to site and spin indices.
+        openfermion operator to fermionic modes.
+        Fermionic modes are described as tuples containing
+        (site index, spin state index, 1/total_spin).
     '''
+    #TO DO? Site indices are stored as integers.
+    #Perhaps tuples/lattice objects would be better?
 
     if not isinstance(sys, kwant.system.System):
         raise TypeError(f'Expecting an instance of System, got {type(sys)}')
@@ -106,3 +111,32 @@ def system_to_FermionOperator(sys, return_indexer = False):
     if return_indexer:
         return ham, ind
     return ham
+
+def hubbard_interaction(U, ind):
+    '''
+    Return onsite interaction of the form U*n_{i, sigma}n_{i, sigma'}
+    for the sytem as an openfermion object.
+    Parameters
+    ----------
+    U: numeric
+        Interaction strength.
+    ind: kwant_to_openfermion.Indexer
+        Matching fermionic modes to integer indices to be used.
+    
+    Returns
+    ----------
+    int_ham: openfermion.FermionOperator
+        The hamiltonian describing the interaction.
+    '''
+    
+    int_ham = openfermion.FermionOperator()
+    
+    #List of site indices and number of fermionic modes on each site
+    sites = set([(i[0], i[2]) for i in ind.elements])
+    for lat_ix, n_spin in sites:
+        for spin_ix1, spin_ix2 in combinations(range(n_spin), 2):
+            ix1 = ind.index((lat_ix, spin_ix1, n_spin))
+            ix2 = ind.index((lat_ix, spin_ix2, n_spin))
+            int_ham += openfermion.FermionOperator(f'{ix1}^ {ix1} {ix2}^ {ix2}')
+    
+    return int_ham
