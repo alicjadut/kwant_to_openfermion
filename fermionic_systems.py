@@ -137,6 +137,6 @@ def hubbard_interaction(U, ind):
         for spin_ix1, spin_ix2 in combinations(range(n_spin), 2):
             ix1 = ind.index((lat_ix, spin_ix1, n_spin))
             ix2 = ind.index((lat_ix, spin_ix2, n_spin))
-            int_ham += openfermion.FermionOperator(f'{ix1}^ {ix1} {ix2}^ {ix2}')
+            int_ham += openfermion.FermionOperator(f'{ix1}^ {ix1} {ix2}^ {ix2}', U)
     
     return int_ham
